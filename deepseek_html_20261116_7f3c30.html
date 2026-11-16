@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>eFootballStore - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #0a0e17; --card-bg: #121826; --gold: #f2c94c;
+            --gold-glow: rgba(242, 201, 76, 0.6); --blue: #2f80ed;
+            --text: #ffffff; --muted: #8b9bb4; --danger: #e74c3c; --green: #27ae60;
+        }
+        body { background-color: var(--bg-dark); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+        h1, h2, h3, .price, .btn-primary { font-family: 'Orbitron', sans-serif; }
+        
+        @keyframes pulse-legend { 0% { box-shadow: 0 0 5px var(--gold-glow); } 50% { box-shadow: 0 0 20px var(--gold-glow); } 100% { box-shadow: 0 0 5px var(--gold-glow); } }
+
+        /* HEADER - CORRIGIDO E ESPAÇADO */
+        header { position: sticky; top: 0; z-index: 100; background: rgba(10, 14, 23, 0.98); backdrop-filter: blur(10px); border-bottom: 2px solid var(--gold); padding: 10px 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+        .logo { font-size: 1.1rem; font-weight: 900; color: var(--gold); display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .icon-btn { background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; position: relative; padding: 5px; }
+        .badge { position: absolute; top: 0; right: 0; background: var(--danger); color: white; font-size: 0.65rem; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+
+        /* BOTÕES DE PERFIL E ADMIN - MAIS VISÍVEIS */
+        .btn-login { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .user-profile { display: none; align-items: center; gap: 8px; cursor: pointer; background: rgba(242, 201, 76, 0.1); border: 1px solid var(--gold); padding: 4px 12px 4px 4px; border-radius: 20px; }
+        .user-profile img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+        .user-profile span { font-size: 0.8rem; font-weight: bold; color: var(--gold); }
+        
+        /* BOTÃO ADMIN AGORA COM DESTAQUE E NÃO FICA NO CANTO */
+        .btn-admin-header { display: none; background: linear-gradient(135deg, var(--gold), #d4af37); color: #000; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-family: 'Orbitron'; font-size: 0.8rem; cursor: pointer; box-shadow: 0 0 10px rgba(242, 201, 76, 0.4); animation: pulse-legend 2s infinite; }
+
+        /* LOJA E PESQUISA */
+        .store-controls { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .search-box { position: relative; width: 100%; }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; background: var(--card-bg); border: 1px solid #2a3447; border-radius: 8px; color: white; font-family: 'Rajdhani'; font-size: 1rem; outline: none; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+        
+        .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-btn { background: var(--card-bg); border: 1px solid #2a3447; color: var(--muted); padding: 6px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 0.9rem; }
+        .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+
+        /* PRODUTOS */
+        .container { padding: 15px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; border: 1px solid #2a3447; }
+        .card.legend { animation: pulse-legend 2.5s infinite; border-color: var(--gold); }
+        .card.epic { border-color: var(--blue); }
+        
+        .card-img-box { height: 180px; background: #000; position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .card-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .card-img-box i { font-size: 4rem; color: #2a3447; }
+        
+        .card-info { padding: 12px; flex: 1; display: flex; flex-direction: column; }
+        .card-info h3 { font-size: 1rem; color: white; margin-bottom: 5px; }
+        .slots-badge { font-size: 0.75rem; color: var(--gold); margin-bottom: 8px; display: block; }
+        
+        .stats-box { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; }
+        .stat { background: rgba(255,255,255,0.05); padding: 4px; border-radius: 4px; font-size: 0.7rem; color: #ccc; }
+        .player-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+        .ptag { background: rgba(242, 201, 76, 0.1); border: 1px solid rgba(242, 201, 76, 0.3); color: var(--gold); padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .price { font-size: 1.1rem; color: var(--gold); font-weight: 700; }
+        .btn-actions { display: flex; gap: 5px; }
+        .btn-icon { background: var(--card-bg); border: 1px solid var(--gold); color: var(--gold); width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .btn-buy { background: var(--green); color: white; border: none; padding: 8px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+
+        /* MODAIS DE FUNDO */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; display: none; }
+        .overlay.active { display: block; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--card-bg); padding: 20px; border-radius: 12px; z-index: 1001; width: 90%; max-width: 380px; border: 1px solid var(--gold); opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h2 { color: var(--gold); font-size: 1.1rem; }
+        .close-btn { background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+
+        /* FORMULÁRIOS E PERFIL */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+        .form-control { width: 100%; padding: 10px; background: #0a0e17; border: 1px solid #2a3447; border-radius: 6px; color: white; font-family: 'Rajdhani'; font-size: 0.95rem; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--gold); color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        
+        .auth-tabs { display: flex; margin-bottom: 15px; border-bottom: 1px solid #2a3447; }
+        .auth-tab { flex: 1; padding: 8px; background: none; border: none; color: var(--muted); font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
+        .auth-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+        .profile-card { text-align: center; }
+        .profile-header-bg { height: 70px; background: linear-gradient(135deg, #1a253d, #0a0e17); border-radius: 8px 8px 0 0; margin: -20px -20px 0 -20px; border-bottom: 1px solid var(--gold); }
+        .profile-avatar-box { width: 80px; height: 80px; border-radius: 50%; background: var(--card-bg); border: 3px solid var(--gold); margin: -40px auto 10px; position: relative; overflow: hidden; }
+        .profile-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar-box i { font-size: 2.5rem; color: #2a3447; margin-top: 15px; }
+        .role-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; margin-top: 5px; }
+        .role-owner { background: var(--gold); color: black; }
+        .role-admin { background: #9b59b6; color: white; }
+        .role-user { background: #34495e; color: white; }
+        
+        .owner-controls { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #2a3447; text-align: left; }
+        .btn-logout { background: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+
+        /* CARRINHO */
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 350px; height: 100vh; background: var(--card-bg); z-index: 2000; transition: 0.4s; display: flex; flex-direction: column; border-left: 2px solid var(--gold); }
+        .cart-sidebar.active { right: 0; }
+        .cart-header { padding: 15px; border-bottom: 1px solid #2a3447; display: flex; justify-content: space-between; }
+        .cart-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; }
+        .empty-cart { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--muted); }
+        .empty-cart i { font-size: 4rem; color: #2a3447; margin-bottom: 15px; }
+
+        /* ==========================================
+           PAINEL ADMIN CORRIGIDO (ROLAGEM E BOTÕES)
+           ========================================== */
+        .admin-panel { 
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; 
+            height: 100vh; background: var(--card-bg); z-index: 2000; 
+            transition: 0.4s; 
+            overflow-y: auto; /* Permite rolar */
+            -webkit-overflow-scrolling: touch; /* Rolagem suave no celular */
+            padding: 15px; 
+            padding-bottom: 120px; /* ESPAÇO EXTRA NO FINAL PARA NÃO CORTAR OS BOTÕES */
+            border-left: 2px solid var(--gold); 
+        }
+        .admin-panel.active { right: 0; }
+        
+        .admin-list-item { background: #0a0e17; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--gold); }
+        .admin-list-item h4 { font-size: 0.85rem; color: white; margin-bottom: 3px; }
+        .admin-list-item p { font-size: 0.7rem; color: var(--muted); }
+        .btn-small { padding: 6px 10px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
+        .btn-edit { background: var(--blue); color: white; margin-right: 5px; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        .upload-box { border: 2px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; display: block; background: rgba(242, 201, 76, 0.05); }
+        .upload-box input[type="file"] { display: none; }
+        .preview-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .preview-grid img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid var(--gold); }
+
+        /* ==========================================
+           VISUALIZADOR DE IMAGEM EM TELA CHEIA
+           ========================================== */
+        .image-viewer { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 9999; display: none; flex-direction: column; 
+        }
+        .image-viewer.active { display: flex; }
+        .image-viewer-header { padding: 15px; text-align: right; }
+        .image-viewer-close { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+        
+        /* Container da galeria para permitir rolagem lateral (swipe) */
+        .image-gallery-container { 
+            flex: 1; display: flex; overflow-x: auto; 
+            scroll-snap-type: x mandatory; /* Força parar em cada imagem */
+            align-items: center; 
+        }
+        .image-gallery-container::-webkit-scrollbar { display: none; } /* Esconde a barra de rolagem */
+        
+        .image-gallery-container img { 
+            min-width: 100%; height: auto; max-height: 80vh; 
+            object-fit: contain; 
+            scroll-snap-align: center; /* Centraliza a imagem ao parar */
+            padding: 10px;
+        }
+
+        /* TOAST */
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--green); color: white; padding: 12px 25px; border-radius: 30px; z-index: 10000; font-weight: bold; transition: 0.3s; width: 90%; max-width: 320px; text-align: center; }
+        .toast.show { bottom: 20px; }
+        .toast.error { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fas fa-gamepad"></i> eFootballStore</div>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="openCart()"><i class="fas fa-shopping-cart"></i><span class="badge" id="cartCount">0</span></button>
+            
+            <button class="btn-login" id="btnLoginHeader" onclick="openModal('authModal')">Entrar</button>
+            
+            <div class="user-profile" id="profileHeader" onclick="openProfile()">
+                <img id="headerAvatar" src="" style="display:none;">
+                <i class="fas fa-user-circle" id="headerDefaultAvatar" style="font-size:1.5rem;"></i>
+                <span id="headerName">User</span>
+            </div>
+
+            <!-- BOTÃO ADMIN FORA DO CANTO, BEM VISÍVEL -->
+            <button class="btn-admin-header" id="btnAdminHeader" onclick="openAdminPanel()"><i class="fas fa-crown"></i> PAINEL</button>
+        </div>
+    </header>
+
+    <div class="store-controls">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Pesquisar conta ou jogador..." oninput="renderStore()">
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all', this)">Todas</button>
+            <button class="filter-btn" onclick="setFilter('legend', this)">Lendárias</button>
+            <button class="filter-btn" onclick="setFilter('epic', this)">Épicas</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- CARRINHO SIDEBAR -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2><i class="fas fa-shopping-cart"></i> Carrinho</h2>
+            <button class="close-btn" onclick="closeAll()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-body" id="cartBody"></div>
+    </div>
+
+    <!-- MODAL DE LOGIN -->
+    <div class="modal" id="authModal">
+        <div class="modal-header">
+            <h2>Acessar Conta</h2>
+            <button class="close-btn" onclick="closeAll()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">Login</button>
+            <button class="auth-tab" id="tabRegister" onclick="switchAuth('register')">Criar Conta</button>
+        </div>
+        <div id="formLogin">
+            <div class="form-group"><label>Usuário</label><input type="text" id="loginUser" class="form-control" placeholder="@usuario"></div>
+            <div class="form-group"><label>Senha</label><input type="password" id="loginPass" class="form-control" placeholder="••••••••"></div>
+            <button class="btn-primary" onclick="doLogin()">Entrar</button>
+        </div>
+        <div id="formRegister" style="display:none;">
+            <div class="form-group"><label>Nome Completo</label><input type="text" id="regName" class="form-control" placeholder="Seu nome"></div>
+            <div class="form-group"><label>Usuário (Único)</label><input type="text" id="regUser" class="form-control" placeholder="@usuario"></div>
+            <div class="form-group"><label>Senha</label><input type="password" id="regPass" class="form-control" placeholder="Crie uma senha"></div>
+            <div class="form-group">
+                <label>Foto de Perfil</label>
+                <label for="regAvatar" class="upload-box" style="padding: 10px;">
+                    <i class="fas fa-camera"></i> <span style="font-size:0.8rem;">Escolher Imagem</span>
+                    <input type="file" id="regAvatar" accept="image/*" onchange="previewRegAvatar(event)">
+                </label>
+                <div id="regAvatarPreview" style="margin-top:10px; text-align:center;"></div>
+            </div>
+            <button class="btn-primary" onclick="doRegister()">Criar Perfil</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE PERFIL GACHA -->
+    <div class="modal" id="profileModal">
+        <div class="modal-header" style="margin-bottom: 0; padding-bottom: 10px;">
+            <h2 style="visibility: hidden;">Perfil</h2>
+            <button class="close-btn" onclick="closeAll()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="profile-card">
+            <div class="profile-header-bg"></div>
+            <div class="profile-avatar-box">
+                <img id="profileAvatar" src="" style="display:none;">
+                <i class="fas fa-user" id="profileDefaultAvatar"></i>
+            </div>
+            <div class="profile-info">
+                <h2 id="profileName">Nome</h2>
+                <p id="profileUsername">@usuario</p>
+                <div class="role-badge" id="profileRoleBadge">Membro</div>
+            </div>
+            <div class="owner-controls" id="ownerControls">
+                <h3 style="color:var(--gold); font-size:0.9rem; margin-bottom:8px;"><i class="fas fa-shield-alt"></i> Gerenciar Admins</h3>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="promoteUserInput" class="form-control" placeholder="@usuario">
+                    <button class="btn-small btn-edit" onclick="promoteToAdmin()">Promover</button>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
+        </div>
+    </div>
+
+    <!-- PAINEL ADMIN -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="modal-header">
+            <h2 style="color: var(--gold); font-size: 1.2rem;"><i class="fas fa-crown"></i> Painel Admin</h2>
+            <button class="close-btn" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style="color:white; font-size:1rem; margin-bottom:10px;" id="formTitle">Publicar Nova Conta</h3>
+            <div class="form-group"><label>Título da Conta *</label><input type="text" id="pubTitle" class="form-control" placeholder="Ex: Conta Lendária"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>Preço (R$) *</label><input type="number" id="pubPrice" class="form-control" placeholder="150.00"></div>
+                <div class="form-group"><label>Slots (Qtd) *</label><input type="number" id="pubSlots" class="form-control" value="1" placeholder="1"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="pubCategory" class="form-control">
+                        <option value="legend">Lendária (Dourado)</option>
+                        <option value="epic">Épica (Azul)</option>
+                        <option value="normal">Normal</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Plataforma</label><input type="text" id="pubPlatform" class="form-control" value="Mobile"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>Moedas</label><input type="text" id="pubCoins" class="form-control" placeholder="50.000"></div>
+                <div class="form-group"><label>Lendas/Épicos</label><input type="text" id="pubLendas" class="form-control" placeholder="5 Épicos"></div>
+            </div>
+            <div class="form-group"><label>Jogadores (vírgula)</label><input type="text" id="pubPlayers" class="form-control" placeholder="Messi, CR7"></div>
+            
+            <div class="form-group">
+                <label>Imagens (Selecione várias se quiser)</label>
+                <label for="pubImages" class="upload-box">
+                    <i class="fas fa-images" style="font-size: 1.5rem; color:var(--gold);"></i>
+                    <input type="file" id="pubImages" accept="image/*" multiple onchange="handleImages(event)">
+                </label>
+                <div class="preview-grid" id="imgPreview"></div>
+            </div>
+            
+            <div class="form-group"><label>WhatsApp *</label><input type="text" id="pubWpp" class="form-control" value="5591982991835"></div>
+            <button class="btn-primary" id="btnPublish" onclick="publishProduct()"><i class="fas fa-upload"></i> Publicar Loja</button>
+            <button class="btn-small btn-delete" id="btnCancelEdit" style="width:100%; margin-top:8px; display:none; padding: 10px;" onclick="cancelEdit()">Cancelar Edição</button>
+        </div>
+
+        <hr style="border-color:#2a3447; margin-bottom:15px;">
+        
+        <h3 style="color:white; font-size:1rem; margin-bottom:10px;">Gerenciar Contas (Editar/Excluir)</h3>
+        <div id="adminProductList"></div>
+        <!-- ESPAÇO EXTRA NO FINAL PARA GARANTIR QUE O ÚLTIMO BOTÃO APAREÇA -->
+        <div style="height: 50px;"></div> 
+    </div>
+
+    <!-- VISUALIZADOR DE IMAGEM EM TELA CHEIA (GALERIA) -->
+    <div class="image-viewer" id="imageViewer">
+        <div class="image-viewer-header">
+            <button class="image-viewer-close" onclick="closeImageViewer()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="image-gallery-container" id="imageGalleryContainer">
+            <!-- As imagens serão injetadas aqui -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Mensagem</div>
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+    <script>
+        const OWNER_CREDENTIALS = { username: "king01", password: "74182013" };
+        
+        let usersDB = JSON.parse(localStorage.getItem('efs_users_db')) || [];
+        let products = JSON.parse(localStorage.getItem('efs_store_data')) || [
+            { id: 'p1', title: "Conta Lendária - Time dos Sonhos", price: 250.00, category: 'legend', slots: 3, platform: "Mobile", coins: "100K", lendas: "5 Lendas", players: ["Messi 105", "CR7 104"], images: ["https://i.imgur.com/6M4vIq9.jpeg"], wpp: "5591982991835", seller: "Loja Oficial" },
+            { id: 'p2', title: "Conta Épica - Início Perfeito", price: 120.00, category: 'epic', slots: 5, platform: "Mobile", coins: "30K", lendas: "3 Épicos", players: ["Mbappé 102"], images: [], wpp: "5591982991835", seller: "Loja Oficial" }
+        ];
+        let cart = JSON.parse(localStorage.getItem('efs_cart')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('efs_current_user')) || null;
+        let tempImages = [];
+        let regAvatarBase64 = "";
+        let currentFilter = 'all';
+        let editingProductId = null;
+
+        function init() {
+            if (!usersDB.find(u => u.username === OWNER_CREDENTIALS.username)) {
+                usersDB.push({ name: "Dono (King)", username: OWNER_CREDENTIALS.username, password: OWNER_CREDENTIALS.password, role: "owner", avatar: "" });
+                localStorage.setItem('efs_users_db', JSON.stringify(usersDB));
+            }
+            renderStore();
+            updateUI();
+        }
+
+        // ==========================================
+        // VISUALIZADOR DE IMAGEM EM TELA CHEIA
+        // ==========================================
+        function openImageViewer(id) {
+            const p = products.find(x => x.id === id);
+            if(!p || !p.images || p.images.length === 0) return;
+
+            const container = document.getElementById('imageGalleryContainer');
+            // Cria uma tag img para cada imagem da conta. O CSS já cuida da rolagem lateral.
+            container.innerHTML = p.images.map(img => `<img src="${img}">`).join('');
+            
+            document.getElementById('imageViewer').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Trava a tela de fundo
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewer').classList.remove('active');
+            document.body.style.overflow = 'auto'; // Destrava a tela
+        }
+
+        // ==========================================
+        // LOJA E FILTROS
+        // ==========================================
+        function setFilter(cat, btn) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderStore();
+        }
+
+        function renderStore() {
+            const grid = document.getElementById('productsGrid');
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = products;
+
+            if (currentFilter !== 'all') filtered = filtered.filter(p => p.category === currentFilter);
+            if (query) {
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(query) || 
+                    p.players.some(pl => pl.toLowerCase().includes(query))
+                );
+            }
+
+            if(filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; width:100%; color:#8b9bb4;">Nenhuma conta encontrada.</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                let cardClass = p.category === 'legend' ? 'legend' : (p.category === 'epic' ? 'epic' : '');
+                let imgHtml = (p.images && p.images.length > 0) 
+                    ? `<img src="${p.images[0]}" onclick="openImageViewer('${p.id}')" title="Clique para ampliar">` 
+                    : `<i class="fas fa-shield-alt"></i>`;
+
+                return `
+                <div class="card ${cardClass}">
+                    <div class="card-img-box">
+                        ${imgHtml}
+                    </div>
+                    <div class="card-info">
+                        <h3>${p.title}</h3>
+                        <span class="slots-badge"><i class="fas fa-box"></i> ${p.slots} disponível(is)</span>
+                        <div class="stats-box">
+                            <div class="stat"><i class="fas fa-mobile-alt"></i> ${p.platform}</div>
+                            <div class="stat"><i class="fas fa-coins"></i> ${p.coins}</div>
+                            <div class="stat" style="grid-column: span 2;"><i class="fas fa-star"></i> ${p.lendas}</div>
+                        </div>
+                        <div class="player-tags">${(p.players || []).map(pl => `<span class="ptag">${pl}</span>`).join('')}</div>
+                        <div class="card-footer">
+                            <div class="price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
+                            <div class="btn-actions">
+                                <button class="btn-icon" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i></button>
+                                <button class="btn-buy" onclick="buyWhatsApp('${p.id}')"><i class="fab fa-whatsapp"></i> Comprar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // ADMIN
+        // ==========================================
+        function openAdminPanel() {
+            if(currentUser && (currentUser.role === 'owner' || currentUser.role === 'admin')) {
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('overlay').classList.add('active');
+                renderAdminList();
+            } else {
+                showToast('Faça login como Admin!', 'error');
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('adminProductList');
+            if(products.length === 0) {
+                list.innerHTML = '<p style="color:#8b9bb4; font-size:0.9rem;">Nenhuma conta publicada ainda.</p>';
+                return;
+            }
+            list.innerHTML = products.map(p => `
+                <div class="admin-list-item">
+                    <div>
+                        <h4>${p.title}</h4>
+                        <p>R$ ${p.price.toFixed(2)} | Slots: ${p.slots}</p>
+                    </div>
+                    <div style="display:flex;">
+                        <button class="btn-small btn-edit" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-small btn-delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editProduct(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+
+            editingProductId = id;
+            document.getElementById('formTitle').innerText = "Editar Conta";
+            document.getElementById('pubTitle').value = p.title;
+            document.getElementById('pubPrice').value = p.price;
+            document.getElementById('pubSlots').value = p.slots;
+            document.getElementById('pubCategory').value = p.category;
+            document.getElementById('pubPlatform').value = p.platform;
+            document.getElementById('pubCoins').value = p.coins;
+            document.getElementById('pubLendas').value = p.lendas;
+            document.getElementById('pubPlayers').value = (p.players || []).join(', ');
+            document.getElementById('pubWpp').value = p.wpp;
+            
+            tempImages = [...(p.images || [])];
+            document.getElementById('imgPreview').innerHTML = tempImages.map(im => `<img src="${im}">`).join('');
+
+            document.getElementById('btnPublish').innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+            document.getElementById('btnCancelEdit').style.display = 'block';
+            
+            // Rola o painel para o topo para ver o formulário
+            document.getElementById('adminPanel').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingProductId = null;
+            document.getElementById('formTitle').innerText = "Publicar Nova Conta";
+            document.getElementById('pubTitle').value = '';
+            document.getElementById('pubPrice').value = '';
+            document.getElementById('pubSlots').value = '1';
+            document.getElementById('pubPlayers').value = '';
+            document.getElementById('pubCoins').value = '';
+            document.getElementById('pubLendas').value = '';
+            tempImages = [];
+            document.getElementById('imgPreview').innerHTML = '';
+            
+            document.getElementById('btnPublish').innerHTML = '<i class="fas fa-upload"></i> Publicar Loja';
+            document.getElementById('btnCancelEdit').style.display = 'none';
+        }
+
+        function deleteProduct(id) {
+            if(!confirm('Tem certeza que deseja excluir esta conta?')) return;
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('efs_store_data', JSON.stringify(products));
+            renderStore();
+            renderAdminList();
+            showToast('Conta excluída.');
+        }
+
+        function handleImages(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX = 600; let w = img.width, h = img.height;
+                        if(w > MAX) { h = h * MAX / w; w = MAX; }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        tempImages.push(canvas.toDataURL('image/jpeg', 0.7));
+                        document.getElementById('imgPreview').innerHTML = tempImages.map((im, i) => `<img src="${im}">`).join('');
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function publishProduct() {
+            if(!currentUser || (currentUser.role !== 'owner' && currentUser.role !== 'admin')) return;
+            
+            const title = document.getElementById('pubTitle').value;
+            const price = parseFloat(document.getElementById('pubPrice').value);
+            const slots = parseInt(document.getElementById('pubSlots').value);
+            
+            if(!title || !price || !slots) return showToast('Preencha Título, Preço e Slots!', 'error');
+
+            if (editingProductId) {
+                const index = products.findIndex(p => p.id === editingProductId);
+                products[index] = {
+                    ...products[index],
+                    title, price, slots,
+                    category: document.getElementById('pubCategory').value,
+                    platform: document.getElementById('pubPlatform').value,
+                    coins: document.getElementById('pubCoins').value,
+                    lendas: document.getElementById('pubLendas').value,
+                    players: document.getElementById('pubPlayers').value.split(',').map(s => s.trim()).filter(Boolean),
+                    images: [...tempImages],
+                    wpp: document.getElementById('pubWpp').value
+                };
+                showToast('Conta atualizada!');
+            } else {
+                const newProd = {
+                    id: 'p' + Date.now(),
+                    title, price, slots,
+                    category: document.getElementById('pubCategory').value,
+                    platform: document.getElementById('pubPlatform').value,
+                    coins: document.getElementById('pubCoins').value,
+                    lendas: document.getElementById('pubLendas').value,
+                    players: document.getElementById('pubPlayers').value.split(',').map(s => s.trim()).filter(Boolean),
+                    images: [...tempImages],
+                    wpp: document.getElementById('pubWpp').value,
+                    seller: currentUser.name
+                };
+                products.unshift(newProd);
+                showToast('Conta publicada!');
+            }
+
+            localStorage.setItem('efs_store_data', JSON.stringify(products));
+            renderStore();
+            renderAdminList();
+            cancelEdit();
+        }
+
+        // ==========================================
+        // SISTEMA DE LOGIN E PERFIL
+        // ==========================================
+        function switchAuth(type) {
+            document.getElementById('tabLogin').classList.toggle('active', type === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', type === 'register');
+            document.getElementById('formLogin').style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById('formRegister').style.display = type === 'register' ? 'block' : 'none';
+        }
+
+        function previewRegAvatar(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX = 200; let w = img.width, h = img.height;
+                    if(w > MAX) { h = h * MAX / w; w = MAX; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    regAvatarBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    document.getElementById('regAvatarPreview').innerHTML = `<img src="${regAvatarBase64}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">`;
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function doRegister() {
+            const name = document.getElementById('regName').value;
+            const username = document.getElementById('regUser').value.toLowerCase().trim();
+            const pass = document.getElementById('regPass').value;
+
+            if(!name || !username || !pass) return showToast('Preencha todos os campos!', 'error');
+            if(usersDB.find(u => u.username === username)) return showToast('Este usuário já existe!', 'error');
+            
+            let role = (username === OWNER_CREDENTIALS.username) ? "owner" : "user";
+            const newUser = { name, username, password: pass, role, avatar: regAvatarBase64 };
+            usersDB.push(newUser);
+            localStorage.setItem('efs_users_db', JSON.stringify(usersDB));
+            
+            currentUser = newUser;
+            localStorage.setItem('efs_current_user', JSON.stringify(currentUser));
+            
+            closeAll();
+            updateUI();
+            showToast(`Bem-vindo, ${name}!`);
+        }
+
+        function doLogin() {
+            const user = document.getElementById('loginUser').value.toLowerCase().trim();
+            const pass = document.getElementById('loginPass').value;
+
+            const found = usersDB.find(u => u.username === user && u.password === pass);
+            if(!found) return showToast('Usuário ou senha incorretos!', 'error');
+
+            currentUser = found;
+            localStorage.setItem('efs_current_user', JSON.stringify(currentUser));
+            closeAll();
+            updateUI();
+            showToast(`Bem-vindo, ${found.name}!`);
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('efs_current_user');
+            closeAll();
+            updateUI();
+            showToast('Você saiu da conta.');
+        }
+
+        function updateUI() {
+            const btnLogin = document.getElementById('btnLoginHeader');
+            const profile = document.getElementById('profileHeader');
+            const btnAdmin = document.getElementById('btnAdminHeader');
+            const headerAvatar = document.getElementById('headerAvatar');
+            const defaultAvatar = document.getElementById('headerDefaultAvatar');
+
+            if(currentUser) {
+                btnLogin.style.display = 'none';
+                profile.style.display = 'flex';
+                document.getElementById('headerName').innerText = currentUser.name.split(' ')[0];
+                
+                if(currentUser.avatar) {
+                    headerAvatar.src = currentUser.avatar;
+                    headerAvatar.style.display = 'block';
+                    defaultAvatar.style.display = 'none';
+                } else {
+                    headerAvatar.style.display = 'none';
+                    defaultAvatar.style.display = 'block';
+                }
+
+                if(currentUser.role === 'owner' || currentUser.role === 'admin') {
+                    btnAdmin.style.display = 'block';
+                } else {
+                    btnAdmin.style.display = 'none';
+                }
+            } else {
+                btnLogin.style.display = 'block';
+                profile.style.display = 'none';
+                btnAdmin.style.display = 'none';
+            }
+            updateCartUI();
+        }
+
+        function openProfile() {
+            if(!currentUser) return;
+            document.getElementById('profileName').innerText = currentUser.name;
+            document.getElementById('profileUsername').innerText = '@' + currentUser.username;
+            
+            const pAvatar = document.getElementById('profileAvatar');
+            const pDefault = document.getElementById('profileDefaultAvatar');
+            if(currentUser.avatar) {
+                pAvatar.src = currentUser.avatar;
+                pAvatar.style.display = 'block';
+                pDefault.style.display = 'none';
+            } else {
+                pAvatar.style.display = 'none';
+                pDefault.style.display = 'block';
+            }
+
+            const badge = document.getElementById('profileRoleBadge');
+            badge.className = 'role-badge';
+            if(currentUser.role === 'owner') {
+                badge.innerText = 'Dono da Loja';
+                badge.classList.add('role-owner');
+                document.getElementById('ownerControls').style.display = 'block';
+            } else if(currentUser.role === 'admin') {
+                badge.innerText = 'Administrador';
+                badge.classList.add('role-admin');
+                document.getElementById('ownerControls').style.display = 'none';
+            } else {
+                badge.innerText = 'Membro';
+                badge.classList.add('role-user');
+                document.getElementById('ownerControls').style.display = 'none';
+            }
+            openModal('profileModal');
+        }
+
+        function promoteToAdmin() {
+            if(currentUser.role !== 'owner') return showToast('Apenas o Dono pode fazer isso!', 'error');
+            const targetUser = document.getElementById('promoteUserInput').value.toLowerCase().trim();
+            if(!targetUser) return showToast('Digite o @ do usuário', 'error');
+            const userIndex = usersDB.findIndex(u => u.username === targetUser);
+            if(userIndex === -1) return showToast('Usuário não encontrado!', 'error');
+            if(usersDB[userIndex].role === 'owner') return showToast('Este usuário já é o Dono!', 'error');
+
+            usersDB[userIndex].role = 'admin';
+            localStorage.setItem('efs_users_db', JSON.stringify(usersDB));
+            document.getElementById('promoteUserInput').value = '';
+            showToast(`@${targetUser} agora é Admin!`);
+        }
+
+        // ==========================================
+        // CARRINHO E UTILITÁRIOS
+        // ==========================================
+        function openCart() {
+            document.getElementById('cartSidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            if(!cart.find(c => c.id === id)) {
+                cart.push(p);
+                localStorage.setItem('efs_cart', JSON.stringify(cart));
+                updateCartUI();
+                showToast('Adicionado às compras pendentes!');
+            } else {
+                showToast('Já está no carrinho!', 'error');
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(c => c.id !== id);
+            localStorage.setItem('efs_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.length;
+            const cartBody = document.getElementById('cartBody');
+
+            if (cart.length === 0) {
+                cartBody.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-basket"></i>
+                        <h3 style="color: white; margin-bottom: 5px;">Carrinho Vazio</h3>
+                        <p>Você não tem nenhuma compra pendente.</p>
+                    </div>
+                `;
+            } else {
+                cartBody.innerHTML = cart.map(c => `
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--gold);">
+                        <div>
+                            <h4 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 3px;">${c.title}</h4>
+                            <p style="color: white; font-weight: bold; font-size: 0.9rem;">R$ ${c.price.toFixed(2)}</p>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="removeFromCart('${c.id}')" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem;"><i class="fas fa-trash"></i></button>
+                            <button onclick="buyWhatsApp('${c.id}')" style="background: var(--green); border: none; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer;"><i class="fab fa-whatsapp"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function buyWhatsApp(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+            const msg = encodeURIComponent(`Olá ${p.seller || 'vendedor'}! Tenho interesse na conta "${p.title}" por R$ ${p.price.toFixed(2)}.`);
+            let number = p.wpp;
+            if(number.length <= 11) number = '55' + number;
+            window.open(`https://wa.me/${number}?text=${msg}`, '_blank');
+        }
+
+        function openModal(id) {
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeAll() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('profileModal').classList.remove('active');
+            document.getElementById('cartSidebar').classList.remove('active');
+            document.getElementById('adminPanel').classList.remove('active');
+        }
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = `toast show ${type === 'error' ? 'error' : ''}`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
